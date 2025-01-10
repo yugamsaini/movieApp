@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Movies'),
+        title: Text('Movies', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
           IconButton(
             icon: Icon(Icons.search),
@@ -39,19 +39,42 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: movies.length,
-        itemBuilder: (context, index) {
-          final movie = movies[index]['show'];
-          return ListTile(
-            leading: Image.network(movie['image']?['medium'] ?? ''),
-            title: Text(movie['name']),
-            subtitle: Text(movie['summary']?.replaceAll(RegExp(r'<[^>]*>'), '') ?? ''),
-            onTap: () {
-              Navigator.pushNamed(context, '/details', arguments: movie);
-            },
-          );
-        },
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ListView.builder(
+          itemCount: movies.length,
+          itemBuilder: (context, index) {
+            final movie = movies[index]['show'];
+            return Card(
+              elevation: 5,
+              margin: const EdgeInsets.symmetric(vertical: 8.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ListTile(
+                leading: Image.network(
+                  movie['image']?['medium'] ??
+                      'https://via.placeholder.com/100x150.png?text=No+Image',
+                  fit: BoxFit.cover,
+                  width: 50,
+                  height: 75,
+                ),
+                title: Text(
+                  movie['name'],
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(
+                  movie['summary']?.replaceAll(RegExp(r'<[^>]*>'), '') ?? '',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                onTap: () {
+                  Navigator.pushNamed(context, '/details', arguments: movie);
+                },
+              ),
+            );
+          },
+        ),
       ),
     );
   }
