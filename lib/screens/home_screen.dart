@@ -27,54 +27,139 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final padding = size.width * 0.03;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Movies', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'Netflix',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.red,
+            fontSize: size.width * 0.08,
+          ),
+        ),
         actions: [
           IconButton(
-            icon: Icon(Icons.search),
+            icon: Icon(Icons.search, color: Colors.white),
             onPressed: () {
               Navigator.pushNamed(context, '/search');
             },
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListView.builder(
-          itemCount: movies.length,
-          itemBuilder: (context, index) {
-            final movie = movies[index]['show'];
-            return Card(
-              elevation: 5,
-              margin: const EdgeInsets.symmetric(vertical: 8.0),
-              shape: RoundedRectangleBorder(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(padding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildSectionTitle('Trending Now', size),
+              buildMovieCarousel(size),
+              buildSectionTitle('Popular on Netflix', size),
+              buildMovieGrid(size),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildSectionTitle(String title, Size size) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: size.height * 0.02),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: size.width * 0.05,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget buildMovieCarousel(Size size) {
+    final imageHeight = size.height * 0.25;
+    final imageWidth = size.width * 0.3;
+
+    return Container(
+      height: imageHeight,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: movies.length,
+        itemBuilder: (context, index) {
+          final movie = movies[index]['show'];
+          return GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, '/details', arguments: movie);
+            },
+            child: Padding(
+              padding: EdgeInsets.only(right: size.width * 0.03),
+              child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-              ),
-              child: ListTile(
-                leading: Image.network(
+                child: Image.network(
                   movie['image']?['medium'] ??
                       'https://via.placeholder.com/100x150.png?text=No+Image',
                   fit: BoxFit.cover,
-                  width: 50,
-                  height: 75,
+                  width: imageWidth,
+                  height: imageHeight,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Image.asset(
+                      'lib/assets/images/movieIcon.png',
+                      fit: BoxFit.cover,
+                      width: imageWidth,
+                      height: imageHeight,
+                    );
+                  },
                 ),
-                title: Text(
-                  movie['name'],
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(
-                  movie['summary']?.replaceAll(RegExp(r'<[^>]*>'), '') ?? '',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                onTap: () {
-                  Navigator.pushNamed(context, '/details', arguments: movie);
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget buildMovieGrid(Size size) {
+    final crossAxisCount = size.width > 600 ? 4 : 3;
+
+    return Padding(
+      padding: EdgeInsets.only(top: size.height * 0.02),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
+          crossAxisSpacing: size.width * 0.02,
+          mainAxisSpacing: size.height * 0.02,
+        ),
+        itemCount: movies.length,
+        itemBuilder: (context, index) {
+          final movie = movies[index]['show'];
+          return GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, '/details', arguments: movie);
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: Image.network(
+                movie['image']?['medium'] ??
+                    'https://via.placeholder.com/100x150.png?text=No+Image',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Image.asset(
+                    'lib/assets/images/movieIcon.png',
+                    fit: BoxFit.cover,
+                  );
                 },
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

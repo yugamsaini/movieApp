@@ -9,7 +9,7 @@ class SplashScreen extends StatelessWidget {
 
     return Scaffold(
       body: Center(
-        child: Image.asset('lib/assets/images/netflixImage.png'), // Add an image to assets
+        child: Image.asset('lib/assets/images/netflixImage.png'), 
       ),
     );
   }
